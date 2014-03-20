@@ -1,3 +1,12 @@
+if (typeof console == 'undefined') {
+    window.console = {
+        log: function (msg) {
+            alert(msg);
+        },
+        dir: function () {}
+    }
+}
+
 microXTag = (function ($) {
     function loadImports(importList, loaded) {
         $.each(importList, function (index, importFile) {
