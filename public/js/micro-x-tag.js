@@ -53,7 +53,7 @@ microXTag = (function ($) {
     };
 
     function getFragmentFromTemplate(templateID) {
-        var text = $("#" + templateID).text();
+        var text = $("#" + templateID).html();
         var div = document.createElement('div');
         div.innerHTML = text;
         var df = document.createDocumentFragment();
