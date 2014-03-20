@@ -1,3 +1,11 @@
-console.log("Executing dynamic JavaScript");
-document.body.appendChild(microXTag.getFragmentFromTemplate('hello-tmpl'));
+(function () {
+    microXTag.register("hello", "hello-tmpl", {
+        lifecycle: {
+            inserted: function () {
+                console.log("Inserted!");
+            }
+        }
+    });
+    console.log("Executing dynamic JavaScript");
+})();
 //@ sourceURL=hello.js

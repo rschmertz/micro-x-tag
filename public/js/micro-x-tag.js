@@ -1,12 +1,46 @@
 microXTag = (function ($) {
-    function loadImports(importList) {
+    function loadImports(importList, loaded) {
         $.each(importList, function (index, importFile) {
             $.get(importFile)
                 .done(function (html) {
                     var $elements = $(html);
                     $('body').append($elements);
+                    loaded();
                 })
         });
+    };
+
+    var registry = {};
+
+    function register(componentName, templateID, config) {
+        if (registry[componentName]) {
+            throw "component already registered with name " + componentName;
+        }
+        registry[componentName] = {
+            config: config,
+            fragment: getFragmentFromTemplate(templateID)
+        }
+    }
+
+    function getComponent(name) {
+        var registryItem = registry[name];
+        var component = new mxtElement(registryItem);
+        return component;
+    }
+
+    function mxtElement (registryListing) {
+        this.registryListing = registryListing;
+        this.el = this.registryListing.fragment.cloneNode(true);
+    };
+
+    mxtElement.prototype = {
+        appendTo: function (newParent) {
+            newParent.appendChild(this.el);
+            var config = this.registryListing.config;
+            if (config.lifecycle && config.lifecycle.inserted) {
+                config.lifecycle.inserted.apply(this);
+            };
+        }
     };
 
     function getFragmentFromTemplate(templateID) {
@@ -22,6 +56,7 @@ microXTag = (function ($) {
 
     return {
         loadImports: loadImports,
-        getTemplate: getTemplate
+        register: register,
+        getComponent: getComponent
     }
 })(jQuery);

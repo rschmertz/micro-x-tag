@@ -10,7 +10,9 @@
           var importList = [
               "components/hello/hello.html"
           ];
-          microXTag.loadImports(importList);
+          microXTag.loadImports(importList, function () {
+              microXTag.getComponent("hello").appendTo(document.body);
+          });
       })();
     </script>
   </head>
