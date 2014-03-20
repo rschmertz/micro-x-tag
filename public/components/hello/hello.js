@@ -1,6 +1,9 @@
 (function () {
     microXTag.register("hello", "hello-tmpl", {
         lifecycle: {
+            created: function () {
+                console.log("Created!");
+            },
             inserted: function () {
                 console.log("Inserted!");
             }

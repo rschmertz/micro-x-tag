@@ -34,6 +34,11 @@ microXTag = (function ($) {
     function getComponent(name) {
         var registryItem = registry[name];
         var component = new mxtElement(registryItem);
+        var config = component.registryListing.config;
+        if (config.lifecycle && config.lifecycle.created) {
+            config.lifecycle.created.apply(this);
+        };
+
         return component;
     }
 
