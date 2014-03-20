@@ -9,13 +9,22 @@ if (typeof console == 'undefined') {
 
 microXTag = (function ($) {
     function loadImports(importList, loaded) {
+        var loadqueue = [];
         $.each(importList, function (index, importFile) {
             $.get(importFile)
                 .done(function (html) {
                     var $elements = $(html);
                     $('body').append($elements);
-                    loaded();
+                    loadqueue[index] = true;
+                    if (loadqueue.length == importList.length) {
+                        for (var i = 0; i < loadqueue.length &&
+                             loadqueue[i] == true; i++);
+                        if (i >= loadqueue.length) {
+                            loaded();
+                        }
+                    };
                 })
+            loadqueue[index] = false; // request has been made but response not received
         });
     };
 

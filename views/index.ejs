@@ -8,10 +8,12 @@
     <script>
       (function () {
           var importList = [
+              "components/magicbox/magicbox.html",
               "components/hello/hello.html"
           ];
           microXTag.loadImports(importList, function () {
               microXTag.getComponent("hello").appendTo(document.body);
+              microXTag.getComponent("magicbox").appendTo(document.body);
           });
       })();
     </script>
