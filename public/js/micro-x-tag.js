@@ -55,6 +55,8 @@ microXTag = (function ($) {
         this.registryListing = registryListing;
         this.el = document.createElement(name);
         this.el.appendChild(this.registryListing.fragment.cloneNode(true));
+        // Support the methods in the "methods" property of the config
+        $.extend(this, registryListing.config.methods);
         this.xtag = {}; //ease backward compatibility
     };
 

@@ -4,6 +4,11 @@ microXTag.register("magicbox", "magicbox-tmpl", {
             this.xtag.theBox = microXTag.query(this, '.magicbox');
         },
         inserted: function () {
+            this.clickResponse();
+        }
+    },
+    methods: {
+        clickResponse: function () {
             $(this.xtag.theBox).on("click", function () {
                 alert("Clicky!");
             });
