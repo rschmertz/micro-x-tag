@@ -12,6 +12,18 @@
             inserted: function () {
                 console.log("Inserted!");
             }
+        },
+        accessors: {
+            "x-message": {
+                get: function () {
+                    console.log("in hello's custom getAttribute");
+                    return this.xtag.xmessage;
+                },
+                set: function (value) {
+                    console.log("in hello's custom setAttribute");
+                    this.xtag.xmessage = value;
+                }
+            }
         }
     });
     console.log("Executing dynamic JavaScript");

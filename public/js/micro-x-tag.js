@@ -69,6 +69,19 @@ microXTag = (function ($) {
         this.el.appendChild(this.registryListing.fragment.cloneNode(true));
         // Support the methods in the "methods" property of the config
         $.extend(this, registryListing.config.methods);
+        this._microx = {
+            accessorLookup: {}
+        };
+        var accessors = registryListing.config.accessors;
+        if (accessors) {
+            for (var name in accessors) {
+                if (accessors[name].attribute) {
+                    if (accessors[name].attribute.name) {
+                        this._microx.accessorLookup[accessors[name].attribute.name] = accessors[name];
+                    }
+                }
+            }
+        }
         this.xtag = {}; //ease backward compatibility
     };
 
@@ -90,10 +103,32 @@ microXTag = (function ($) {
                 p.replaceChild(c.el, el);
                 c.onInsert();
             });
+        },
+        setAttribute: function (name, value) {
+            //return;
+            var accessor = this._microx.accessorLookup[name] || (function(accessors) {
+                return accessors && accessors[name];
+            })(this.registryListing.config.accessors);
+                
+            if (accessor && accessor.set) {
+                return accessor.set.call(this, value);
+            } else {
+                return this.el.setAttribute(name, value);
+            }
+        },
+        getAttribute: function (name) {
+            //return "foo";
+            var accessors = this.registryListing.config.accessors;
+            if (accessors && accessors[name] && accessors[name].get) {
+                console.log("Hey, we're using get accessor!");
+                return accessors[name].get.call(this);
+            } else {
+                return this.el.getAttribute(name);
+            }
         }
     };
 
-    $.each(['setAttribute', 'getAttribute'], function (index, methodName) {
+    $.each(['getElementsByTagName'], function (index, methodName) {
         mxtElement.prototype[methodName] = function () {
             return this.el[methodName].apply(this.el, arguments);
         };
