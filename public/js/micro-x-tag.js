@@ -31,18 +31,23 @@ microXTag = (function ($) {
     var registry = {};
 
     function register(componentName, templateID, config) {
-        if (registry[componentName]) {
+        var name = componentName.toUpperCase();
+        if (registry[name]) {
             throw "component already registered with name " + componentName;
         }
-        registry[componentName] = {
+        registry[name] = {
             config: config,
             fragment: getFragmentFromTemplate(templateID)
         }
     }
 
     function getComponent(name) {
-        var registryItem = registry[name];
-        var component = new mxtElement(name, registryItem);
+        var regname = name.toUpperCase();
+        var registryItem = registry[regname];
+        if (typeof registryItem == 'undefined') {
+            throw Error("no tag " + name + " registered");
+        };
+        var component = new mxtElement(regname, registryItem);
         var config = component.registryListing.config;
         if (config.lifecycle && config.lifecycle.created) {
             config.lifecycle.created.apply(component);
@@ -63,10 +68,21 @@ microXTag = (function ($) {
     mxtElement.prototype = {
         appendTo: function (newParent) {
             newParent.appendChild(this.el);
+            this.onInsert();
+        },
+        onInsert: function () {
             var config = this.registryListing.config;
             if (config.lifecycle && config.lifecycle.inserted) {
                 config.lifecycle.inserted.apply(this);
             };
+            var childXTags = microXTag.query(this, '[x-micro-tags=true]');
+            $.each(childXTags || [], function (index, el) {
+                //console.dir(el);
+                var c = microXTag.getComponent(el.nodeName);
+                var p = el.parentNode;
+                p.replaceChild(c.el, el);
+                c.onInsert();
+            });
         }
     };
 
@@ -82,7 +98,7 @@ microXTag = (function ($) {
     };
 
     function queryNative(mxtag, selector) {
-        return mxtag.el.querySelector(selector);
+        return mxtag.el.querySelectorAll(selector);
     }
 
     function queryAssisted(mxtag, selector) {
