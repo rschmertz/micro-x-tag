@@ -3,6 +3,11 @@
         lifecycle: {
             created: function () {
                 console.log("Created!");
+                var msg = this.getAttribute("x-message");
+                if (!msg) {
+                    this.setAttribute("x-message", "default message");
+                }
+                console.log(this.getAttribute("x-message"));
             },
             inserted: function () {
                 console.log("Inserted!");

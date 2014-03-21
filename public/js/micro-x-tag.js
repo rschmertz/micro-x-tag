@@ -41,13 +41,13 @@ microXTag = (function ($) {
         }
     }
 
-    function getComponent(name) {
+    function getComponent(name, el) {
         var regname = name.toUpperCase();
         var registryItem = registry[regname];
         if (typeof registryItem == 'undefined') {
             throw Error("no tag " + name + " registered");
         };
-        var component = new mxtElement(regname, registryItem);
+        var component = new mxtElement(regname, registryItem, el);
         var config = component.registryListing.config;
         if (config.lifecycle && config.lifecycle.created) {
             config.lifecycle.created.apply(component);
@@ -56,9 +56,16 @@ microXTag = (function ($) {
         return component;
     }
 
-    function mxtElement (name, registryListing) {
+    function mxtElement (name, registryListing, origElement) {
         this.registryListing = registryListing;
-        this.el = document.createElement(name);
+        var newElement = document.createElement(name);
+        this.el = newElement;
+        if (origElement) {
+            var attrs = $(origElement).prop("attributes");
+            $.each(attrs, function() {
+                newElement.setAttribute(this.name, this.value);
+            });
+        }
         this.el.appendChild(this.registryListing.fragment.cloneNode(true));
         // Support the methods in the "methods" property of the config
         $.extend(this, registryListing.config.methods);
@@ -78,13 +85,19 @@ microXTag = (function ($) {
             var childXTags = microXTag.query(this, '[x-micro-tags=true]');
             $.each(childXTags || [], function (index, el) {
                 //console.dir(el);
-                var c = microXTag.getComponent(el.nodeName);
+                var c = microXTag.getComponent(el.nodeName, el);
                 var p = el.parentNode;
                 p.replaceChild(c.el, el);
                 c.onInsert();
             });
         }
     };
+
+    $.each(['setAttribute', 'getAttribute'], function (index, methodName) {
+        mxtElement.prototype[methodName] = function () {
+            return this.el[methodName].apply(this.el, arguments);
+        };
+    });
 
     function getFragmentFromTemplate(templateID) {
         var text = $("#" + templateID).html();
