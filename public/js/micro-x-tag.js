@@ -42,18 +42,20 @@ microXTag = (function ($) {
 
     function getComponent(name) {
         var registryItem = registry[name];
-        var component = new mxtElement(registryItem);
+        var component = new mxtElement(name, registryItem);
         var config = component.registryListing.config;
         if (config.lifecycle && config.lifecycle.created) {
-            config.lifecycle.created.apply(this);
+            config.lifecycle.created.apply(component);
         };
 
         return component;
     }
 
-    function mxtElement (registryListing) {
+    function mxtElement (name, registryListing) {
         this.registryListing = registryListing;
-        this.el = this.registryListing.fragment.cloneNode(true);
+        this.el = document.createElement(name);
+        this.el.appendChild(this.registryListing.fragment.cloneNode(true));
+        this.xtag = {}; //ease backward compatibility
     };
 
     mxtElement.prototype = {
@@ -77,9 +79,19 @@ microXTag = (function ($) {
         return df;
     };
 
+    function queryNative(mxtag, selector) {
+        return mxtag.el.querySelector(selector);
+    }
+
+    function queryAssisted(mxtag, selector) {
+        var $result = $(mxtag.el).find(selector);
+        return $result.get();
+    }
+
     return {
         loadImports: loadImports,
         register: register,
+        query: document.querySelector ? queryNative : queryAssisted,
         getComponent: getComponent
     }
 })(jQuery);
