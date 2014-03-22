@@ -11,9 +11,24 @@ microXTag = (function ($) {
     function loadImports(importList, loaded) {
         var loadqueue = [];
         $.each(importList, function (index, importFile) {
+            var componentPath = importFile.replace(/[^/]*$/, '');
+            function adjustPath(el, attr) {
+                var src = el.getAttribute(attr);
+                if (!/^\//.test(src)) {
+                    el.setAttribute(attr, componentPath + src);
+                }            
+            };
             $.get(importFile)
                 .done(function (html) {
                     var $elements = $(html);
+                    var $scripts = $elements.filter('script[src]');
+                    $scripts.each(function (index, script) {
+                        adjustPath(script, 'src');
+                    });
+                    var $links = $elements.filter('link[rel="stylesheet"]');
+                    $links.each(function (index, link) {
+                        adjustPath(link, 'href');
+                    });
                     $('body').append($elements);
                     loadqueue[index] = true;
                     if (loadqueue.length == importList.length) {
