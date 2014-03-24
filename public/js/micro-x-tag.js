@@ -48,7 +48,9 @@ microXTag = (function ($) {
     function register(componentName, templateID, config) {
         var name = componentName.toUpperCase();
         if (registry[name]) {
-            throw "component already registered with name " + componentName;
+            var errorMsg = "component already registered with name " + componentName;
+            console.log(errorMsg);
+            return;
         }
         registry[name] = {
             config: config,
@@ -104,6 +106,9 @@ microXTag = (function ($) {
         appendTo: function (newParent) {
             newParent.appendChild(this.el);
             this.onInsert();
+        },
+        getElement: function () {
+            return this.el;
         },
         onInsert: function () {
             var config = this.registryListing.config;
