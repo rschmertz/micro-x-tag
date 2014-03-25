@@ -199,25 +199,35 @@ microXTag = (function ($) {
         };
     }
 
+    // giveN a tag name and a DOM element, look up the mxtElement
+    // object that is the wrapper for the DOM element
+    function getMxtFromElement(el) {
+        var registryItem = registry[el.nodeName];
+        if (!registryItem) {
+            console.log("Expected a registered tag named " + el.nodeName);
+            return null;
+        };
+        var list = registryItem.elementList;
+        var item = null;
+        for (var i = 0, len = list.length; i < len; i++) {
+            if (list[i].el == el) {
+                item =  list[i];
+            }
+        };
+        if (item == null) {
+            console.log("Warning: mxtElement for " + el.nodeName + " not found");
+        };
+        return item;
+    }
+
     function triggerChildrenInserted(el) {
         if (el.getAttribute('x-micro-tags') == 'true') {
-            var registryItem = registry[el.nodeName];
-            if (!registryItem) {
-                console.log("Expected a registered tag named " + el.nodeName);
-                return;
-            };
-            // Since we're starting with a raw HTML element, we need
-            // to find the mxtElement that owns it
-            var list = registryItem.elementList;
-            for (var i = 0, len = list.length; i < len; i++) {
-                if (list[i].el == el) {
-                    list[i].onInsert();
-                    break;
-                }
-            };
-            if (i >= len) {
-                console.log("Warning: mxtElement for " + el.nodeName + " not found");
-            };
+            var mxt = getMxtFromElement(el);
+            if (mxt) {
+                mxt.onInsert();
+            } else {
+                console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!");
+            }
             for (i = 0, len = el.children.length; i < len; i++) {
                 triggerChildrenInserted(el.children[i]);
             };
