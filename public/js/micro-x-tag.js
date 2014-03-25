@@ -11,7 +11,7 @@ microXTag = (function ($) {
     function loadImports(importList, loaded) {
         var loadqueue = [];
         $.each(importList, function (index, importFile) {
-            var componentPath = importFile.replace(/[^/]*$/, '');
+            var componentPath = importFile.replace(/[^\/]*$/, '');
             function adjustPath(el, attr) {
                 var src = el.getAttribute(attr);
                 if (!/^\//.test(src)) {
@@ -54,6 +54,7 @@ microXTag = (function ($) {
         }
         registry[name] = {
             config: config,
+            elementList: [],
             fragment: getFragmentFromTemplate(templateID)
         }
     }
@@ -65,6 +66,7 @@ microXTag = (function ($) {
             throw Error("no tag " + name + " registered");
         };
         var component = new mxtElement(regname, registryItem, el);
+        registryItem.elementList.push(component);
         var config = component.registryListing.config;
         if (config.lifecycle && config.lifecycle.created) {
             config.lifecycle.created.apply(component);
@@ -83,6 +85,7 @@ microXTag = (function ($) {
                 newElement.setAttribute(this.name, this.value);
             });
         }
+        this.el.setAttribute('x-micro-tags', true);
         this.el.appendChild(this.registryListing.fragment.cloneNode(true));
         // Support the methods in the "methods" property of the config
         $.extend(this, registryListing.config.methods);
@@ -99,6 +102,12 @@ microXTag = (function ($) {
                 }
             }
         }
+        var childXTags = microXTag.query(this, '[x-micro-tags=true]');
+        $.each(childXTags || [], function (index, el) {
+            var c = microXTag.getComponent(el.nodeName, el);
+            var p = el.parentNode;
+            p.replaceChild(c.el, el);
+        });
         this.xtag = {}; //ease backward compatibility
     };
 
@@ -115,14 +124,7 @@ microXTag = (function ($) {
             if (config.lifecycle && config.lifecycle.inserted) {
                 config.lifecycle.inserted.apply(this);
             };
-            var childXTags = microXTag.query(this, '[x-micro-tags=true]');
-            $.each(childXTags || [], function (index, el) {
-                //console.dir(el);
-                var c = microXTag.getComponent(el.nodeName, el);
-                var p = el.parentNode;
-                p.replaceChild(c.el, el);
-                c.onInsert();
-            });
+
         },
         setAttribute: function (name, value) {
             //return;
@@ -174,10 +176,54 @@ microXTag = (function ($) {
         return $result.get();
     }
 
+    // Append newEl to parent, the micro-xtag way
+    function appendChild(parent, newEl) {
+        var newNodeList = [],
+            i, len;
+        if (newEl.nodeName == "#document-fragment") {
+            for (i = 0, len = newEl.children.length; i < len; i++) {
+                newNodeList.push(newEl.children[i]);
+            };
+        } else {
+            newNodeList = [newEl];
+        }
+        parent.appendChild(newEl);
+        for (var i = 0, len = newNodeList.length; i < len; i++) {
+            triggerChildrenInserted(newNodeList[i]);
+        };
+    }
+
+    function triggerChildrenInserted(el) {
+        if (el.getAttribute('x-micro-tags') == 'true') {
+            var registryItem = registry[el.nodeName];
+            if (!registryItem) {
+                console.log("Expected a registered tag named " + el.nodeName);
+                return;
+            };
+            // Since we're starting with a raw HTML element, we need
+            // to find the mxtElement that owns it
+            var list = registryItem.elementList;
+            for (var i = 0, len = list.length; i < len; i++) {
+                if (list[i].el == el) {
+                    list[i].onInsert();
+                    break;
+                }
+            };
+            if (i >= len) {
+                console.log("Warning: mxtElement for " + el.nodeName + " not found");
+            };
+            for (i = 0, len = el.children.length; i < len; i++) {
+                triggerChildrenInserted(el.children[i]);
+            };
+        }
+    }
+
     return {
         loadImports: loadImports,
         register: register,
         query: document.querySelector ? queryNative : queryAssisted,
+        appendChild: appendChild,
+        triggerChildrenInserted: triggerChildrenInserted,
         getComponent: getComponent
     }
 })(jQuery);
