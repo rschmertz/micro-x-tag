@@ -124,7 +124,7 @@ microXTag = (function ($) {
             if (config.lifecycle && config.lifecycle.inserted) {
                 config.lifecycle.inserted.apply(this);
             };
-
+            this._microx.inserted = true;
         },
         setAttribute: function (name, value) {
             //return;
@@ -179,13 +179,15 @@ microXTag = (function ($) {
     }
 
     // Append newEl to parent, the micro-xtag way
-    function appendChild(parent, newEl) {
+    function appendChild(parent, newItem) {
         var newNodeList = [],
-            i, len;
+            i, len, newEl;
 
-        if (newEl._microx) {
-            newEl = newEl.el;
-        };
+        if (newItem._microx) {
+            newEl = newItem.el;
+        } else {
+            newEl = newItem;
+        }
         if (newEl.nodeName == "#document-fragment") {
             for (i = 0, len = newEl.children.length; i < len; i++) {
                 newNodeList.push(newEl.children[i]);
@@ -194,12 +196,13 @@ microXTag = (function ($) {
             newNodeList = [newEl];
         }
         parent.appendChild(newEl);
+        if (newItem._microx && newItem._microx.inserted == true) return;
         for (var i = 0, len = newNodeList.length; i < len; i++) {
             triggerChildrenInserted(newNodeList[i]);
         };
     }
 
-    // giveN a tag name and a DOM element, look up the mxtElement
+    // given a tag name and a DOM element, look up the mxtElement
     // object that is the wrapper for the DOM element
     function getMxtFromElement(el) {
         var registryItem = registry[el.nodeName];
@@ -240,6 +243,7 @@ microXTag = (function ($) {
         query: document.querySelector ? queryNative : queryAssisted,
         appendChild: appendChild,
         triggerChildrenInserted: triggerChildrenInserted,
+        getMxtFromElement: getMxtFromElement,
         getComponent: getComponent
     }
 })(jQuery);
