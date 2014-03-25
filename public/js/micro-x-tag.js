@@ -146,6 +146,9 @@ microXTag = (function ($) {
             } else {
                 return this.el.getAttribute(name);
             }
+        },
+        addClass: function (classname) {
+            $(this.el).addClass(classname);
         }
     };
 
@@ -179,6 +182,10 @@ microXTag = (function ($) {
     function appendChild(parent, newEl) {
         var newNodeList = [],
             i, len;
+
+        if (newEl._microx) {
+            newEl = newEl.el;
+        };
         if (newEl.nodeName == "#document-fragment") {
             for (i = 0, len = newEl.children.length; i < len; i++) {
                 newNodeList.push(newEl.children[i]);

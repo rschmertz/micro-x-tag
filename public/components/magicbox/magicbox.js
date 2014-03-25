@@ -16,6 +16,11 @@ microXTag.register("magicbox", "magicbox-tmpl", {
                 var df = document.createDocumentFragment();
                 df.appendChild(hello.el);
                 microXTag.appendChild(self.el, df);
+                var hello2 = microXTag.getComponent('hello');
+                hello2.setAttribute('x-message', "appended as mxtElement");
+                hello2.setAttribute('x-misc-attr', 'something');
+                hello2.addClass('special-addition');
+                microXTag.appendChild(self.el, hello2);
             });
         }
     }
