@@ -189,8 +189,8 @@ microXTag = (function ($) {
             newEl = newItem;
         }
         if (newEl.nodeName == "#document-fragment") {
-            for (i = 0, len = newEl.children.length; i < len; i++) {
-                newNodeList.push(newEl.children[i]);
+            for (i = 0, len = newEl.childNodes.length; i < len; i++) {
+                newNodeList.push(newEl.childNodes[i]);
             };
         } else {
             newNodeList = [newEl];
