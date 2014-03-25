@@ -133,10 +133,9 @@ microXTag = (function ($) {
             })(this.registryListing.config.accessors);
                 
             if (accessor && accessor.set) {
-                return accessor.set.call(this, value);
-            } else {
-                return this.el.setAttribute(name, value);
+                accessor.set.call(this, value);
             }
+            return this.el.setAttribute(name, value);
         },
         getAttribute: function (name) {
             //return "foo";
