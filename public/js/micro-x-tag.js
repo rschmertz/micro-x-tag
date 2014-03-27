@@ -77,6 +77,23 @@ microXTag = (function ($) {
         return component;
     }
 
+    function standUpTag(el) {
+        var tagName = el.nodeName,
+            mxt = getComponent(tagName, el);
+            parentEl = el.parentNode;
+        parentEl.replaceChild(mxt.el, el);
+        triggerChildrenInserted(mxt.el);
+        return mxt;
+    }        
+
+    // micro-x-taggify the DOM elements passed in
+    function standUpTags(tagList) {
+        for (var i = 0, len = tagList.length; i < len; i++) {
+            el = tagList[i];
+            standUpTag(el);
+        }
+    }
+
     function mxtElement (name, registryListing, origElement) {
         this.registryListing = registryListing;
         var newElement = document.createElement(name);
@@ -256,6 +273,8 @@ microXTag = (function ($) {
         triggerChildrenInserted: triggerChildrenInserted,
         getMxtFromElement: getMxtFromElement,
         getMxtById: getMxtById,
+        standUpTag: standUpTag,
+        standUpTags: standUpTags,
         getComponent: getComponent
     }
 })(jQuery);
