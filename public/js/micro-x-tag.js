@@ -178,7 +178,11 @@ microXTag = (function ($) {
     });
 
     function getFragmentFromTemplate(templateID) {
-        var text = $("#" + templateID).html();
+        var $template = $("#" + templateID);
+        if (!$template || $template.length == 0) {
+            throw "No template with id=" + templateID + " found."
+        }
+        var text = $template.html();
         var div = document.createElement('div');
         div.innerHTML = text;
         var df = document.createDocumentFragment();
@@ -260,6 +264,8 @@ microXTag = (function ($) {
                 console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!");
             }
             for (i = 0, len = el.children.length; i < len; i++) {
+                // Avoid processing iframe, at least for now, because it kills performance
+                //if (el.children[i].nodeName == "IFRAME") continue;
                 triggerChildrenInserted(el.children[i]);
             };
         }
