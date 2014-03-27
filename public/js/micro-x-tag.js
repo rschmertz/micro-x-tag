@@ -225,6 +225,15 @@ microXTag = (function ($) {
         return item;
     }
 
+    function getMxtById(doc, id) {
+        if (arguments.length < 2) {
+            id = doc;
+            doc = document;
+        }
+        var el = doc.getElementById(id);
+        return getMxtFromElement(el);
+    };
+
     function triggerChildrenInserted(el) {
         if (el.getAttribute('x-micro-tags') == 'true') {
             var mxt = getMxtFromElement(el);
@@ -246,6 +255,7 @@ microXTag = (function ($) {
         appendChild: appendChild,
         triggerChildrenInserted: triggerChildrenInserted,
         getMxtFromElement: getMxtFromElement,
+        getMxtById: getMxtById,
         getComponent: getComponent
     }
 })(jQuery);
