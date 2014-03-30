@@ -27,5 +27,7 @@
         }
     });
     console.log("Executing dynamic JavaScript");
+
+    microXTag.standUpTags(document.getElementsByTagName("hello"));
 })();
 //@ sourceURL=hello.js

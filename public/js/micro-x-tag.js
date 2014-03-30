@@ -8,6 +8,7 @@ if (typeof console == 'undefined') {
 }
 
 microXTag = (function ($) {
+    var executionQueue = [];
     function loadImports(importList, loaded) {
         var loadqueue = [];
         $.each(importList, function (index, importFile) {
@@ -37,6 +38,9 @@ microXTag = (function ($) {
                         for (var i = 0; i < loadqueue.length &&
                              loadqueue[i] == true; i++);
                         if (i >= loadqueue.length) {
+                            executionQueue.forEach(function (f) {
+                                f();
+                            });
                             loaded();
                         }
                     };
@@ -60,6 +64,10 @@ microXTag = (function ($) {
             fragment: getFragmentFromTemplate(templateID)
         }
     }
+
+    function ready(cb) {
+        executionQueue.push(cb);
+    };
 
     function getComponent(name, el) {
         var regname = name.toUpperCase();
@@ -160,7 +168,6 @@ microXTag = (function ($) {
             //return "foo";
             var accessors = this.registryListing.config.accessors;
             if (accessors && accessors[name] && accessors[name].get) {
-                console.log("Hey, we're using get accessor!");
                 return accessors[name].get.call(this);
             } else {
                 return this.el.getAttribute(name);
@@ -274,6 +281,7 @@ microXTag = (function ($) {
     return {
         loadImports: loadImports,
         register: register,
+        ready: ready,
         query: document.querySelector ? queryNative : queryAssisted,
         appendChild: appendChild,
         triggerChildrenInserted: triggerChildrenInserted,

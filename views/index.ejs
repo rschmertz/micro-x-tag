@@ -12,7 +12,6 @@
               "components/hello/hello.html"
           ];
           microXTag.loadImports(importList, function () {
-              microXTag.getComponent("hello").appendTo(document.body);
               microXTag.getComponent("magicbox").appendTo(document.body);
           });
       })();
@@ -21,5 +20,6 @@
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+    <hello></hello>
   </body>
 </html>
